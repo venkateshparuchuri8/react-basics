@@ -23,10 +23,14 @@ class App extends React.Component {
   }
 
   componentWillMount() {
-    var data = localStorage.getItem('myData');
-    if (!data) {
+    var data = JSON.parse(localStorage.getItem('myData'));
+    debugger;
+    if (!data || data.length == 0) {
       axios.get(`https://jsonplaceholder.typicode.com/users`).then((response) => {
         console.log(response.data);
+        for (var i=0;i< response.data.length; i++) {
+          response.data[i].userDataEdit = false;
+        }
         this.setState({
           userData : response.data,
           render: true
@@ -34,8 +38,11 @@ class App extends React.Component {
         localStorage.setItem('myData', JSON.stringify(response.data));
       });
     } else {
+      for (var i=0;i< data.length; i++) {
+        data[i].userDataEdit = false;
+      }
       this.setState({
-        userData: JSON.parse(data),
+        userData: data,
         render: true
       })
     }
@@ -59,6 +66,49 @@ class App extends React.Component {
     });
   }
 
+  handleEditUser(id) {
+    var userData = this.state.userData;
+    for (var i=0; i< userData.length; i++) {
+      if (userData[i].id == id) {
+        userData[i].userDataEdit = true
+      }
+    }
+    this.setState({
+      userData : userData,
+      render: true
+    });
+  }
+  handleSaveUserProperty(value,id,property1, property2) {
+    var data = this.state.userData;
+    debugger;
+    for (var i=0; i< data.length; i++) {
+      if (data[i].id == id) {
+        if(property2) {
+          data[i][property1][property2] = value
+        } else {
+          data[i][property1] = value;
+        }
+      }
+    }
+    this.setState({
+      userData : data,
+      render: true
+    });
+  }
+  updateUser(user) {
+    var data = this.state.userData;
+    for (var i=0; i< data.length; i++) {
+      if (data[i].id == user.id) {
+        data[i] = user;
+        data[i].userDataEdit = false;
+      }
+    }
+    this.setState({
+      userData : data,
+      render: true
+    });
+    localStorage.setItem('myData', JSON.stringify(data));
+  }
   onChangeName(newName) {
     this.setState({
       homeLink : newName
@@ -71,7 +121,7 @@ class App extends React.Component {
 
     return (
       <div className="container">
-        {(this.state.render ? <Sample userData={this.state.userData} deleteUser={(id) => this.handleDeleteUser(id)}/> : null)}
+        {(this.state.render ? <Sample saveUser={(value) => this.updateUser(value)} saveUserProperty={(value,id,property1, property2) => this.handleSaveUserProperty(value,id,property1, property2)} userData={this.state.userData} deleteUser={(id) => this.handleDeleteUser(id)} editUser={(id) => this.handleEditUser(id)}/> : null)}
       </div>
     );
   }
