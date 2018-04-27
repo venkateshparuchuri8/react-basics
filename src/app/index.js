@@ -117,11 +117,20 @@ class App extends React.Component {
   sayHaiEvent(name) {
     alert("Hai"+ name);
   }
+  handleAddUser(user) {
+    var data = this.state.userData;
+    data.push(user);
+    this.setState({
+      userData : data,
+      render: true
+    });
+    localStorage.setItem('myData', JSON.stringify(data));
+  }
   render() {
 
     return (
       <div className="container">
-        {(this.state.render ? <Sample saveUser={(value) => this.updateUser(value)} saveUserProperty={(value,id,property1, property2) => this.handleSaveUserProperty(value,id,property1, property2)} userData={this.state.userData} deleteUser={(id) => this.handleDeleteUser(id)} editUser={(id) => this.handleEditUser(id)}/> : null)}
+        {(this.state.render ? <Sample addUser={(user) => this.handleAddUser(user)} saveUser={(value) => this.updateUser(value)} saveUserProperty={(value,id,property1, property2) => this.handleSaveUserProperty(value,id,property1, property2)} userData={this.state.userData} deleteUser={(id) => this.handleDeleteUser(id)} editUser={(id) => this.handleEditUser(id)}/> : null)}
       </div>
     );
   }
